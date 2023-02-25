@@ -1,5 +1,5 @@
 # trylo_core
-Ros2 core for Trilobot© by Pimoroni, renamed "trylo" for this context.
+Ros2 core for Trilobot© by [Pimoroni](https://shop.pimoroni.com/products/trilobot), renamed `trylo` for this context.
 <p align="center">    
     <img width=300 src=repo/trilobot.jpg />
 </p>
