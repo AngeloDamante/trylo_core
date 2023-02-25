@@ -1,8 +1,8 @@
 # trylo_core
 Ros2 core for Trilobot© by Pimoroni, renamed "trylo" for this context.
-<center>
+<p align="center">    
     <img width=300 src=repo/trilobot.jpg />
-</center>
+</p>
 
 ## Directories Layout
 ```
