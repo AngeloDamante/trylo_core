@@ -8,3 +8,6 @@ __pycache__/
 
 # c++
 *.so
+
+# graph_maker
+src/graph_maker
