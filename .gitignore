@@ -3,6 +3,8 @@
 /install
 /log
 
+/test
+
 # python
 __pycache__/
 
