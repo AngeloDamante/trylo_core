@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
+import cv2
 import rclpy
 from rclpy.node import Node
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
-import cv2
 
 class ImageReader(Node):
     def __init__(self):
@@ -14,7 +14,7 @@ class ImageReader(Node):
     
     def callback(self, msg):
         img = self.bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
-        self.get_logger().info(img.shape)
+        self.get_logger().info(str(img.shape))
 
 def main():
     rclpy.init()
