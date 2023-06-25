@@ -20,7 +20,8 @@ ament_python_install_package(${PROJECT_NAME})
 
 # Install Python executables
 install(PROGRAMS
-  scripts/ffNode.py
+  scripts/ff_motor.py
+  scripts/pub_pwm.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
