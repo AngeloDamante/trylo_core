@@ -6,10 +6,13 @@ import rclpy
 from rclpy.node import Node
 import math
 from geometry_msgs.msg import Vector3
-from src.trylo_motor.msg import Command
+# from src.trylo_motor.msg import Command
+from trylo_motor.msg import Command
 from src.trylo_motor.trylo_motor.Commands import Commands
-from src.trylo_gpio.trylo_gpio.Trylo import Trylo
+# from src.trylo_gpio.trylo_gpio.Trylo import Trylo
 
+SPEED_TURN = 0.5
+SPEED_FF = 0.7
 
 class Control(Node):
     def __init__(self):
@@ -17,7 +20,7 @@ class Control(Node):
 
         # ros2 attributes
         self.subscription = self.create_subscription(Vector3, '/ref/coord', self.cbk_read_direction, 10)
-        self.publisher = self.create_publisher(Command, '/motor/spped', 10)
+        self.publisher = self.create_publisher(Command, '/motor/speed', 10)
         self.timer = self.create_timer(timer_period_sec=0.02, callback=self.cbk_write_command)
 
         # control
@@ -32,16 +35,22 @@ class Control(Node):
     def cbk_write_command(self):
         if self.target is None:
             return
-        _angle = math.atan(self.target.x / self.target.z)
-        if _angle > 0:
-            self.command = Command.TURN_RIGHT
-            self.speed = 0.2
-        elif _angle < 0:
-            self.command = Command.TURN_LEFT
-            self.speed = 0.2
-        elif _angle == 0:
-            self.command = Command.FORWARD
-            self.speed = 0.7
+
+        # computing phases
+        if self.target.z == 0.0:
+            self.command = Commands.STOP
+            self.speed = 0.0
+        else:
+            _angle = math.atan(self.target.x / self.target.z)
+            if _angle > 0.0:
+                self.command = Commands.TURN_RIGHT
+                self.speed = SPEED_TURN
+            elif _angle < 0.0:
+                self.command = Commands.TURN_LEFT
+                self.speed = SPEED_TURN
+            elif _angle == 0.0:
+                self.command = Commands.FORWARD
+                self.speed = SPEED_FF            
 
         # msg
         msg = Command()
