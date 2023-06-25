@@ -8,3 +8,6 @@ build_gpio:
 
 build_motor:
 	colcon build --packages-select trylo_motor
+
+build_aruco:
+	colcon build --packages-select trylo_aruco
