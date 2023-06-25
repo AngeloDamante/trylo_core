@@ -2,7 +2,8 @@ import time
 import sn3218
 import RPi.GPIO as GPIO
 from typing import Union
-from src.trylo_gpio.trylo_gpio.names import *
+from src.trylo_gpio.trylo_gpio.names import *  #FIXME IMPORT 
+# from trylo_gpio.names import *
 
 
 class Trylo:
