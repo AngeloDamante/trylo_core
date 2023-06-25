@@ -1,0 +1,5 @@
+<launch>
+<node pkg="trylo_aruco" exec="control.py" name="Controller" namespace="aruco"></node>
+<node pkg="trylo_aruco" exec="motor_handler.py" name="Motor_Handler" namespace="aruco"></node>
+<node pkg="trylo_aruco" exec="aruco_tracker.py" name="Fake_gen" namespace="aruco"></node>
+</launch>
