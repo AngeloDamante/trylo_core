@@ -22,7 +22,14 @@ ament_python_install_package(${PROJECT_NAME})
 install(PROGRAMS
   scripts/motor_handler.py
   scripts/control.py
+  scripts/aruco_tracker.py
   DESTINATION lib/${PROJECT_NAME}
+)
+
+# Install launch files
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
 )
 
 ament_package()
