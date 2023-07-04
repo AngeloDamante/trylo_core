@@ -30,7 +30,8 @@ install(PROGRAMS
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/Aruco.msg"
+  "msg/Marker.msg"
+  "msg/MarkersDetected.msg"
 )
 
 ament_package()
