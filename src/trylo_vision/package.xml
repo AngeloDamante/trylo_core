@@ -5,6 +5,7 @@
   <version>0.0.0</version>
   <description>Library to handle camera and aruco detector</description>
   <maintainer email="angelo.damante16@gmail.com">gogo</maintainer>
+  <license>Gogo</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_python</buildtool_depend>

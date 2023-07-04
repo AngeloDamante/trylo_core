@@ -3,8 +3,8 @@
   <version>0.0.0</version>
   <description>Trylo library to comunicate GPIO bus</description>
   <maintainer email="angelo.damante16@gmail.com">gogo</maintainer>
-  <license>TODO: License declaration</license>
-
+  <license>Gogo</license>
+  
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_python</buildtool_depend>
 
