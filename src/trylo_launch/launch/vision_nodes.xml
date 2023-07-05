@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="trylo_vision" exec="n_camera.py" name="n_camera" namespace="vision"></node>
+    <node pkg="trylo_vision" exec="n_aruco_detector.py" name="n_aruco_detector" namespace="vision"></node>
+</launch>
