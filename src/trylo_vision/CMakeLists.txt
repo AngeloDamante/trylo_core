@@ -30,6 +30,7 @@ install(PROGRAMS
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/Pair.msg"
   "msg/Marker.msg"
   "msg/MarkersDetected.msg"
 )
