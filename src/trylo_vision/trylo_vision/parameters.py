@@ -2,7 +2,7 @@
 
 import numpy as np
 
-FPS = 30
+FPS = 60
 DELTA = 0.2
 DEG_RANGE = (-4.0, 4.0)
 MARKER_SIZE = 0.084
