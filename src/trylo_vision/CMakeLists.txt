@@ -26,6 +26,7 @@ ament_python_install_package(${PROJECT_NAME})
 install(PROGRAMS
   scripts/n_camera.py
   scripts/n_aruco_detector.py
+  scripts/n_aruco_drawer.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
