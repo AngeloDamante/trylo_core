@@ -10,12 +10,13 @@ from rclpy.node import Node
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from trylo_vision.msg import MarkersDetected, Marker, Pair
+from trylo_vision.trylo_vision.parameters import FPS
 
 dictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_250)
 
 
 class ArucoDetector(Node):
-    def __init__(self):
+    def __init__(self, fps=FPS):
         super().__init__('n_aruco_detector')
         self.get_logger().info(f'[ ARUCO NODE ]: init {self.get_name()}')
         self.subscription = self.create_subscription(Image, "/vision/camera", self.cbk_get_img, 5)

@@ -6,12 +6,13 @@ import rclpy
 from rclpy.node import Node
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
+from trylo_vision.trylo_vision.parameters import FPS
 
 # create a webcam
 webcam = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L)
 
 class Camera(Node):
-    def __init__(self, fps=30):
+    def __init__(self, fps=FPS):
         super().__init__("n_camera")
         self.get_logger().info(f'[ CAMERA NODE ]: init {self.get_name()}')
         self.publisher = self.create_publisher(Image, "/vision/camera", 5)
