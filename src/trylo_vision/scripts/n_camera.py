@@ -6,7 +6,7 @@ import rclpy
 from rclpy.node import Node
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
-from trylo_vision.trylo_vision.parameters import FPS
+from trylo_vision.parameters import FPS
 
 # create a webcam
 webcam = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L)

@@ -4,13 +4,12 @@
 import cv2
 from cv2 import aruco
 import copy
-import numpy as np
 import rclpy
 from rclpy.node import Node
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from trylo_vision.msg import MarkersDetected, Marker, Pair
-from trylo_vision.trylo_vision.parameters import FPS
+from trylo_vision.parameters import FPS
 
 dictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_250)
 
