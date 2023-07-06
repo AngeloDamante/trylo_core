@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="trylo_vision" exec="n_camera.py" name="n_camera" namespace="vision"></node>
+    <node pkg="trylo_vision" exec="n_aruco_detector.py" name="n_aruco_detector" namespace="vision"></node>
+    <node pkg="trylo_control" exec="n_refgen.py" name="n_refgen" namespace="control"></node>
+    <node pkg="trylo_control" exec="n_control.py" name="n_control" namespace="control"></node>
+    <node pkg="trylo_gpio" exec="n_robot.py" name="n_robot" namespace="gpio"></node>
+</launch>
