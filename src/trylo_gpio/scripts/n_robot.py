@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Motor Handler"""
+"""Robot Handler"""
 
 import rclpy
 from rclpy.node import Node
