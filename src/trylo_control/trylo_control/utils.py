@@ -6,8 +6,12 @@ import csv
 from typing import Tuple, List
 from scipy.spatial.transform import Rotation as R
 from src.trylo_control.trylo_control.definitions import MARKER, TARGETS
-from src.trylo_vision.trylo_vision.parameters import DELTA, DIST_COEFFS, INTRINSIC_MATRIX, MARKER_POINTS
-
+from src.trylo_control.trylo_control.parameters import (
+    D_MIN, 
+    DIST_COEFFS, 
+    INTRINSIC_MATRIX, 
+    MARKER_POINTS    
+)
 
 def remap(value: float, x_a: float, x_b: float, y_a: float, y_b: float) -> float:
     """Remap
@@ -82,7 +86,7 @@ def compute_distances(corners) -> List[float]:
     return distances
 
 
-def chose_target(markers, corners, delta_criteria=DELTA) -> MARKER:
+def chose_target(markers, corners, delta_criteria=D_MIN) -> MARKER:
     """Chose target with minimum distance and that satisfies a certain criteria
 
     Args:
