@@ -4,9 +4,9 @@ import numpy as np
 DEG_RANGE = (-4.0, 4.0)
 D_MIN = 0.2
 D_MAX = 2.0
-SPEED_MIN = 0.4
+SPEED_MIN = 0.6
 SPEED_MAX = 1.0
-KF_ENABLE = True
+KF_ENABLE = False
 MAX_LOST_FRAME = 20
 
 # vision
