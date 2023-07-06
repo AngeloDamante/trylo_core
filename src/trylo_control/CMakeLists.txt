@@ -20,8 +20,14 @@ find_package(rclpy REQUIRED)
 ament_python_install_package(${PROJECT_NAME})
 
 # Install Python executables
-# install(PROGRAMS
-#   DESTINATION lib/${PROJECT_NAME}
-# )
+install(PROGRAMS
+  scripts/n_control.py
+  scripts/n_refgen.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/Reference.msg"
+)
 
 ament_package()
