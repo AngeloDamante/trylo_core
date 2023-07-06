@@ -51,7 +51,7 @@ class Refgen(Node):
         # connection
         self.subscription = self.create_subscription(MarkersDetected, "/vision/aruco", self.cbk_get_markers, 10)
         self.publisher = self.create_publisher(Reference, "/control/ref", 5)
-        self.create_timer(0.1, self.cbk_pub_ref)
+        self.create_timer(0.02, self.cbk_pub_ref)
 
         # attributes
         self.kf = VisionKalmanFilter(VISION_KF_SETTINGS['NX'], VISION_KF_SETTINGS['NZ'], min_samples=20)
@@ -69,7 +69,7 @@ class Refgen(Node):
         self.data_filtered = []
         
         # setting
-        if kf_enable is True: 
+        if kf_enable is True: # FIXME
             self.kf.start()
             self.kf.enable_vision_mode(VISION_KF_SETTINGS['K1'], VISION_KF_SETTINGS['K2'], VISION_KF_SETTINGS['DT'])
         
@@ -79,16 +79,16 @@ class Refgen(Node):
     #################################################################
     def cbk_get_markers(self, msg_marker):
         ids, corners = msg_marker.ids, msg_marker.corners
-        if len(corners) > 0: #FIXME
-            _ids = []
-            _corners = []
-            for i in range(len(corners)):
-                _ids.append(ids[i])
-                _corners.append(np.array([[[corners[i].top_left.x, corners[i].top_left.y],
-                                          [corners[i].top_right.x, corners[i].top_right.y],
-                                          [corners[i].bottom_right.x, corners[i].bottom_right.y],
-                                          [corners[i].bottom_left.x, corners[i].bottom_left.y]]], np.float32))
-            self.on_iteration(_ids, _corners)
+        # if len(corners) > 0: #FIXME
+        _ids = []
+        _corners = []
+        for i in range(len(corners)):
+            _ids.append(ids[i])
+            _corners.append(np.array([[[corners[i].top_left.x, corners[i].top_left.y],
+                                        [corners[i].top_right.x, corners[i].top_right.y],
+                                        [corners[i].bottom_right.x, corners[i].bottom_right.y],
+                                        [corners[i].bottom_left.x, corners[i].bottom_left.y]]], np.float32))
+        self.on_iteration(np.array([_ids]), tuple(_corners))
         
     def cbk_pub_ref(self):
         msg = Reference()
@@ -102,7 +102,7 @@ class Refgen(Node):
         self.kf.update(measurement)
         self.data_raw.append([self.num_frame, tvec[0][0], tvec[1][0], tvec[2][0]])
         if not self.kf.is_ready(): return tvec
-        self.get_logger().info(f'[ REFGEN ]: CLEAN SIGNAL for {str(self.target)}')
+        # self.get_logger().info(f'[ REFGEN ]: CLEAN SIGNAL for {str(self.target)}')
         state_hat = self.kf.predict()
         tvec = np.array([state_hat[0], state_hat[1], state_hat[2]], np.float32)
         self.data_filtered.append([self.num_frame, tvec[0][0], tvec[1][0], tvec[2][0]])
@@ -110,7 +110,7 @@ class Refgen(Node):
 
     def predict_signal(self):
         if not self.kf.is_ready(): return None
-        self.get_logger().info(f"[ REFGEN ]: PREDICTION for {str(self.target)}")
+        # self.get_logger().info(f"[ REFGEN ]: PREDICTION for {str(self.target)}")
         state_hat = self.kf.predict()
         tvec = np.array([state_hat[0], state_hat[1], state_hat[2]], np.float32)
         self.data_filtered.append([self.num_frame, tvec[0][0], tvec[1][0], tvec[2][0]])
@@ -120,32 +120,35 @@ class Refgen(Node):
     def check_for_disable(self, ids, corners) -> bool:
         is_detected, _ = extract_desired_corners(id_desired=MARKER.disable_tracker.value, ids=ids, corners=corners)
         if not is_detected: return False
-        self.get_logger().info(f'[ REFGEN ]: disable marker detected')
+        # self.get_logger().info(f'[ REFGEN ]: disable marker detected')
         self.num_lost_frame = 0
         self.state = STATE.off
         return True
     
     #################################################################
     def off_state(self, ids, corners):
+        # self.get_logger().info(f'[ REFGEN ]: OFF state, parsing ids = {ids}')
         flag, _ = extract_desired_corners(MARKER.enable_tracker.value, ids, corners)
-        self.publish(0.0, 0.0)
+        # self.get_logger().info(f'[ REFGEN ]: OFF state, flag = {flag}')
+        self.d_ref = 0.0
+        self.theta_ref = 0.0
         
         if len(self.data_filtered) > 0:
-            self.get_logger().info('[ REFGEN ]: saving raw data')
+            # self.get_logger().info('[ REFGEN ]: saving raw data')
             save_data(filename_filtered, self.data_filtered, fields)
         if len(self.data_raw) > 0:
-            self.get_logger().info('[ REFGEN ]: saving filtered data')
+            # self.get_logger().info('[ REFGEN ]: saving filtered data')
             save_data(filename_raw, self.data_raw, fields)
         
-        if not flag: return
-        self.get_logger().info(f'[ REFGEN ]: enable marker detected')
-        self.state = STATE.enable
+        if flag is True: 
+            # self.get_logger().info(f'[ REFGEN ]: enable marker detected')
+            self.state = STATE.enable
 
     def enable_state(self, ids, corners):
         # extract markers detected and compute reference marker
         detected_targets, detected_corners = find_targets(ids, corners)
         ref_marker = chose_target(detected_targets, detected_corners)
-        self.get_logger().info(f'[ REFGEN ]: chosen marker = {ref_marker}')
+        # self.get_logger().info(f'[ REFGEN ]: chosen marker = {ref_marker}')
 
         # change state iff reference marker is detected and computed
         if ref_marker is None: return
@@ -160,29 +163,29 @@ class Refgen(Node):
         flag, corners = extract_desired_corners(id_desired=self.target.value, ids=ids, corners=corners)
         tvec_hat = None
         if not flag:
-            self.get_logger().info(f"[ REFGEN ]: {str(self.target)} LOST")
+            # self.get_logger().info(f"[ REFGEN ]: {str(self.target)} LOST")
             if self.num_lost_frame < self.max_lost_frame:
                 self.num_lost_frame += 1
                 tvec_hat = self.predict_signal()
         else:
-            self.get_logger().info(f"[ REFGEN ]: FOLLOW {str(self.target)}")
+            # self.get_logger().info(f"[ REFGEN ]: FOLLOW {str(self.target)}")
             self.num_lost_frame = 0
             _, rvec, tvec = cv2.solvePnP(objectPoints=MARKER_POINTS, imagePoints=corners, cameraMatrix=INTRINSIC_MATRIX, distCoeffs=DIST_COEFFS, flags=cv2.SOLVEPNP_ITERATIVE)
             tvec_hat = self.clean_signal(tvec=tvec, rvec=rvec)
         
         if tvec_hat is None: 
-            self.publish(0.0, 0.0)
-            return
-        
-        self.get_logger().info(f'[ REFGEN ]: tvec = {tvec_hat}')
-        self.ref_d, self.ref_theta = compute_refs(tvec_hat[0][0], tvec_hat[1][0], tvec_hat[2][0])
-        if self.ref_d < self.d_signed:
-            self.get_logger().info(f'[ REFGEN ]: target reached')
-            self.publish(0.0, 0.0)
-            self.state = STATE.enable
+            self.d_ref = 0.0
+            self.theta_ref = 0.0
         else:
-            self.get_logger().info(f'[ REFGEN ]: target following')
-            self.publish(self.ref_d, self.ref_theta)
+            # self.get_logger().info(f'[ REFGEN ]: tvec = {tvec_hat}')
+            self.d_ref, self.theta_ref = compute_refs(tvec_hat[0][0], tvec_hat[1][0], tvec_hat[2][0])        
+            if self.d_ref < self.d_signed:
+                # self.get_logger().info(f'[ REFGEN ]: target reached')
+                self.d_ref = 0.0
+                self.theta_ref = 0.0
+                self.state = STATE.enable
+            else:
+                self.get_logger().info(f'[ REFGEN ]: target following')
             
     #################################################################
     def on_iteration(self, ids, corners) -> None:
@@ -193,21 +196,21 @@ class Refgen(Node):
         if self.state.value == STATE.off.value:
             self.get_logger().info('[ REFGEN ]: OFF STATE')
             self.off_state(ids, corners)
-            return
+            # return
         
         # ENABLE STATE
         elif self.state.value == STATE.enable.value:
             self.get_logger().info('[ REFGEN ]: ENABLE STATE')
-            if self.check_for_disable(ids, corners) is True: return
-            self.enable_state(ids, corners)
-            return
+            if self.check_for_disable(ids, corners) is False: 
+                self.enable_state(ids, corners)
+            # return
 
         # FOLLOW STATE
         elif self.state.value == STATE.follow.value:
             self.get_logger().info('[ REFGEN ]: FOLLOW STATE')
-            if self.check_for_disable(ids, corners) is True: return
-            self.follow_state(ids, corners)
-            return
+            if self.check_for_disable(ids, corners) is False: 
+                self.follow_state(ids, corners)
+            # return
 
 
 def main(args=None):
