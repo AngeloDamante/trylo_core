@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="trylo_gpio" exec="n_robot.py" name="n_robot" namespace="gpio"></node>
+    <node pkg="trylo_gpio" exec="n_pub_cmd.py" name="n_pub_cmd" namespace="gpio"></node>
+</launch>
