@@ -13,6 +13,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
 find_package(rclpy REQUIRED)
 
 # Install Python modules
@@ -20,9 +21,13 @@ ament_python_install_package(${PROJECT_NAME})
 
 # Install Python executables
 install(PROGRAMS
-  scripts/ff_motor.py
-  scripts/pub_pwm.py
+  scripts/n_robot.py
+  scripts/n_pub_cmd.py
   DESTINATION lib/${PROJECT_NAME}
+)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/Command.msg"
 )
 
 ament_package()
