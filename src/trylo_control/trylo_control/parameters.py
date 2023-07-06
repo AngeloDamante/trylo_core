@@ -6,6 +6,8 @@ D_MIN = 0.2
 D_MAX = 2.0
 SPEED_MIN = 0.4
 SPEED_MAX = 1.0
+KF_ENABLE = True
+MAX_LOST_FRAME = 20
 
 # vision
 MARKER_SIZE = 0.084
