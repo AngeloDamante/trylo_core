@@ -49,8 +49,8 @@ def extract_desired_corners(id_desired, ids, corners) -> Tuple[bool, np.ndarray]
     return True, corners[desired_index][0]
 
 
-def found_targets(ids, corners, targets=TARGETS) -> Tuple[list, list]:
-    """Found Targets for input markers
+def find_targets(ids, corners, targets=TARGETS) -> Tuple[list, list]:
+    """Find Targets for input markers
 
     Args:
         ids (np.ndarray): Nx1
