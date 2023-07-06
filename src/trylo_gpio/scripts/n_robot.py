@@ -14,8 +14,8 @@ class Motor(Node):
         super().__init__("n_robot")
         self.get_logger().info(f'[ ROBOT NODE ]: init {self.get_name()}')
         self.subscription = self.create_subscription(Command, '/gpio/motor', self.cbk_read_command, 10)
-        self.publisher = self.create_publisher(Float32, '/gpio/us_distance', 5)
-        self.create_timer(0.1, self.cbk_pub_distance)
+        # self.publisher = self.create_publisher(Float32, '/gpio/us_distance', 5)
+        # self.create_timer(0.1, self.cbk_pub_distance) #FIXME
         self.robot = Trylo()
 
     def cbk_pub_distance(self):
@@ -24,29 +24,30 @@ class Motor(Node):
         self.publisher.publish(msg)
 
     def cbk_read_command(self, cmd):
+        _cmd, _speed = cmd.command, cmd.speed
         self.get_logger().info(f'[ ROBOT NODE ]: parsing command = {cmd.command}, speed={cmd.speed}')
-        if cmd.command == Directive.FORWARD.value:
+        if _cmd == Directive.FORWARD.value:
             self.get_logger().info('[ ROBOT NODE ]: FORWARD')
-            self.robot.forward(speed=cmd.speed)
-        elif cmd.command == Directive.BACKWARD.value:
+            self.robot.forward(speed=_speed)
+        elif _cmd == Directive.BACKWARD.value:
             self.get_logger().info('[ ROBOT NODE ]: BACKWARD')
-            self.robot.backward(speed=cmd.speed)
-        elif cmd.command == Directive.TURN_RIGHT.value:
+            self.robot.backward(speed=_speed)
+        elif _cmd == Directive.TURN_RIGHT.value:
             self.get_logger().info('[ ROBOT NODE ]: TURN RIGHT')
-            self.robot.turn_right(speed=cmd.speed)
-        elif cmd.command == Directive.TURN_LEFT.value:
+            self.robot.turn_right(speed=_speed)
+        elif _cmd == Directive.TURN_LEFT.value:
             self.get_logger().info('[ ROBOT NODE ]: TURN LEFT')
-            self.robot.turn_left(speed=cmd.speed)
-        elif cmd.command == Directive.CURVE_RIGHT.value:
+            self.robot.turn_left(speed=_speed)
+        elif _cmd == Directive.CURVE_RIGHT.value:
             self.get_logger().info('[ ROBOT NODE ]: CURVE RIGHT')
-            self.robot.curve_forward_right(speed=cmd.speed)
-        elif cmd.command == Directive.CURVE_LEFT.value:
+            self.robot.curve_forward_right(speed=_speed)
+        elif _cmd == Directive.CURVE_LEFT.value:
             self.get_logger().info('[ ROBOT NODE ]: CURVE LEFT')
-            self.robot.curve_forward_left(speed=cmd.speed)
-        elif cmd.command == Directive.STOP.value:
+            self.robot.curve_forward_left(speed=_speed)
+        elif _cmd == Directive.STOP.value:
             self.get_logger().info('[ ROBOT NODE ]: STOP')
             self.robot.stop()
-        elif cmd.command == Directive.COAST.value:
+        elif _cmd == Directive.COAST.value:
             self.get_logger().info('[ ROBOT NODE ]: COAST')
             self.robot.coast()
 
