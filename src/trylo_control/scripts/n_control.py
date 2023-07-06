@@ -15,7 +15,7 @@ from trylo_control.msg import Reference
 from std_msgs.msg import Float32
 
 # params
-from src.trylo_vision.trylo_vision.parameters import(
+from src.trylo_control.trylo_control.parameters import(
     DEG_RANGE,
     D_MIN,
     D_MAX,
@@ -56,7 +56,8 @@ class Control(Node):
         self.publisher.publish(self.cmd)
 
     def cbk_get_distance(self, msg):
-        distance_hcsr04 = msg.data
+        distance_hcsr04 = msg.data / 100. # to meters
+        self.get_logger().info(f"[ CONTROL NODE ]: {distance_hcsr04}")
         if distance_hcsr04 < self.d_min:
             self.get_logger().info("[ CONTROL NODE ]: obstacle!!")
             self.obstacle = True
