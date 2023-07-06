@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="trylo_gpio" exec="n_robot.py" name="n_robot" namespace="gpio"></node>
+    <node pkg="trylo_control" exec="n_control.py" name="n_control" namespace="control"></node>
+</launch>
