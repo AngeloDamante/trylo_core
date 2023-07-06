@@ -23,7 +23,6 @@ from src.trylo_control.trylo_control.parameters import(
     SPEED_MAX
 )
 
-
 class Control(Node):
     def __init__(self, deg_range: tuple, d_min: float, d_max: float, speed_min: float, speed_max: float):
         super().__init__("n_control")
@@ -31,7 +30,7 @@ class Control(Node):
 
         # publish
         self.publisher = self.create_publisher(Command, "/gpio/motor", 10)
-        self.create_timer(0.02, self.cbk_pub_cmd)
+        self.create_timer(0.02, self.cbk_pub_cmd) #FIXME
 
         # subscribers
         self.subscriber_obstacle = self.create_subscription(Float32, "/gpio/us_distance", self.cbk_get_distance, 10)
@@ -57,7 +56,7 @@ class Control(Node):
 
     def cbk_get_distance(self, msg):
         distance_hcsr04 = msg.data / 100. # to meters
-        self.get_logger().info(f"[ CONTROL NODE ]: {distance_hcsr04}")
+        # self.get_logger().info(f"[ CONTROL NODE ]: {distance_hcsr04}")
         if distance_hcsr04 < self.d_min:
             self.get_logger().info("[ CONTROL NODE ]: obstacle!!")
             self.obstacle = True
@@ -68,23 +67,23 @@ class Control(Node):
 
     def cbk_get_ref(self, msg):
         _cmd, _speed = self.chose_command(msg.theta, msg.distance)
-        self.get_logger().info(f"[ CONTROL NODE ]: handle  cmd = {_cmd} speed = {_speed}")
+        # self.get_logger().info(f"[ CONTROL NODE ]: handle  cmd = {_cmd} speed = {_speed}")
         self.cmd.command = _cmd
         self.cmd.speed = _speed
 
     def chose_command(self, ref_theta: float, ref_d: float) -> Tuple[Directive, float]:
-        self.get_logger().info(f'[ CONTROL NODE ]: parsing theta = {ref_theta}, d = {ref_d}')
+        # self.get_logger().info(f'[ CONTROL NODE ]: parsing theta = {ref_theta}, d = {ref_d}')
         if ref_d < self.d_min or self.obstacle is True:
-            self.get_logger().info('[ CONTROL NODE ]: Obstacle or target reached')
+            # self.get_logger().info('[ CONTROL NODE ]: Obstacle or target reached')
             cmd = Directive.STOP.value
         elif self.deg_range[0] < ref_theta < self.deg_range[1]:
-            self.get_logger().info('[ CONTROL NODE ]: theta aligned, ho ahead')
+            # self.get_logger().info('[ CONTROL NODE ]: theta aligned, go ahead')
             cmd = Directive.FORWARD.value
         elif ref_theta > 0:
-            self.get_logger().info('[ CONTROL NODE ]: RIGHT')
+            # self.get_logger().info('[ CONTROL NODE ]: RIGHT')
             cmd = Directive.TURN_RIGHT.value
         elif ref_theta < 0:
-            self.get_logger().info('[ CONTROL NODE ]: LEFT')
+            # self.get_logger().info('[ CONTROL NODE ]: LEFT')
             cmd = Directive.TURN_LEFT.value
         speed = remap(ref_d, self.d_min, self.d_max, self.speed_min, self.speed_max)
         return cmd, speed
