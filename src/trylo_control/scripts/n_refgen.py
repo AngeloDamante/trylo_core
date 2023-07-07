@@ -23,7 +23,8 @@ from src.trylo_control.trylo_control.parameters import (
     MARKER_POINTS,
     DIST_COEFFS,
     INTRINSIC_MATRIX,
-    MAX_LOST_FRAME
+    MAX_LOST_FRAME,
+    MIN_KF_SAMPLES
 )
 from src.trylo_control.trylo_control.utils import (
     extract_desired_corners,
@@ -39,11 +40,13 @@ filename_filtered = "data_filtered_kf.csv"
 fields = ['Frame', 'Tx', 'Ty', 'Tz']
 
 
+GREEN_EN = (45, 246, 152)
+
 class Refgen(Node):
     def __init__(self, d_signed: float, kf_enable: bool, max_lost_frame: int):
         super().__init__("n_refgen")
         self.get_logger().info(f'[ REFGEN NODE ]: init {self.get_name()}')
-
+        
         # init params
         self.d_signed: float = d_signed 
         self.max_lost_frame: int = max_lost_frame
@@ -54,7 +57,7 @@ class Refgen(Node):
         self.create_timer(0.02, self.cbk_pub_ref)
 
         # attributes
-        self.kf = VisionKalmanFilter(VISION_KF_SETTINGS['NX'], VISION_KF_SETTINGS['NZ'], min_samples=20)
+        self.kf = VisionKalmanFilter(VISION_KF_SETTINGS['NX'], VISION_KF_SETTINGS['NZ'], min_samples=MIN_KF_SAMPLES)
         self.target: MARKER = None
         self.state: STATE = STATE.off
         
@@ -92,8 +95,8 @@ class Refgen(Node):
         
     def cbk_pub_ref(self):
         msg = Reference()
-        msg.theta = self.theta_ref
-        msg.distance = self.d_ref
+        msg.theta = float(self.theta_ref)
+        msg.distance = float(self.d_ref)
         self.publisher.publish(msg)
     
     #################################################################
@@ -102,7 +105,7 @@ class Refgen(Node):
         self.kf.update(measurement)
         self.data_raw.append([self.num_frame, tvec[0][0], tvec[1][0], tvec[2][0]])
         if not self.kf.is_ready(): return tvec
-        # self.get_logger().info(f'[ REFGEN ]: CLEAN SIGNAL for {str(self.target)}')
+        self.get_logger().info(f'[ REFGEN ]: CLEAN SIGNAL for {str(self.target)}')
         state_hat = self.kf.predict()
         tvec = np.array([state_hat[0], state_hat[1], state_hat[2]], np.float32)
         self.data_filtered.append([self.num_frame, tvec[0][0], tvec[1][0], tvec[2][0]])
@@ -110,7 +113,7 @@ class Refgen(Node):
 
     def predict_signal(self):
         if not self.kf.is_ready(): return None
-        # self.get_logger().info(f"[ REFGEN ]: PREDICTION for {str(self.target)}")
+        self.get_logger().info(f"[ REFGEN ]: PREDICTION for {str(self.target)}")
         state_hat = self.kf.predict()
         tvec = np.array([state_hat[0], state_hat[1], state_hat[2]], np.float32)
         self.data_filtered.append([self.num_frame, tvec[0][0], tvec[1][0], tvec[2][0]])
@@ -120,7 +123,7 @@ class Refgen(Node):
     def check_for_disable(self, ids, corners) -> bool:
         is_detected, _ = extract_desired_corners(id_desired=MARKER.disable_tracker.value, ids=ids, corners=corners)
         if not is_detected: return False
-        # self.get_logger().info(f'[ REFGEN ]: disable marker detected')
+        self.get_logger().info(f'[ REFGEN ]: disable marker detected')
         self.num_lost_frame = 0
         self.state = STATE.off
         return True
@@ -134,21 +137,21 @@ class Refgen(Node):
         self.theta_ref = 0.0
         
         if len(self.data_filtered) > 0:
-            # self.get_logger().info('[ REFGEN ]: saving raw data')
+            self.get_logger().info('[ REFGEN ]: saving raw data')
             save_data(filename_filtered, self.data_filtered, fields)
         if len(self.data_raw) > 0:
-            # self.get_logger().info('[ REFGEN ]: saving filtered data')
+            self.get_logger().info('[ REFGEN ]: saving filtered data')
             save_data(filename_raw, self.data_raw, fields)
         
         if flag is True: 
-            # self.get_logger().info(f'[ REFGEN ]: enable marker detected')
+            self.get_logger().info(f'[ REFGEN ]: enable marker detected')
             self.state = STATE.enable
 
     def enable_state(self, ids, corners):
         # extract markers detected and compute reference marker
         detected_targets, detected_corners = find_targets(ids, corners)
         ref_marker = chose_target(detected_targets, detected_corners)
-        # self.get_logger().info(f'[ REFGEN ]: chosen marker = {ref_marker}')
+        self.get_logger().info(f'[ REFGEN ]: chosen marker = {ref_marker}')
 
         # change state iff reference marker is detected and computed
         if ref_marker is None: return
@@ -163,12 +166,12 @@ class Refgen(Node):
         flag, corners = extract_desired_corners(id_desired=self.target.value, ids=ids, corners=corners)
         tvec_hat = None
         if not flag:
-            # self.get_logger().info(f"[ REFGEN ]: {str(self.target)} LOST")
+            self.get_logger().info(f"[ REFGEN ]: {str(self.target)} LOST")
             if self.num_lost_frame < self.max_lost_frame:
                 self.num_lost_frame += 1
                 tvec_hat = self.predict_signal()
         else:
-            # self.get_logger().info(f"[ REFGEN ]: FOLLOW {str(self.target)}")
+            self.get_logger().info(f"[ REFGEN ]: FOLLOW {str(self.target)}")
             self.num_lost_frame = 0
             _, rvec, tvec = cv2.solvePnP(objectPoints=MARKER_POINTS, imagePoints=corners, cameraMatrix=INTRINSIC_MATRIX, distCoeffs=DIST_COEFFS, flags=cv2.SOLVEPNP_ITERATIVE)
             tvec_hat = self.clean_signal(tvec=tvec, rvec=rvec)
@@ -176,16 +179,18 @@ class Refgen(Node):
         if tvec_hat is None: 
             self.d_ref = 0.0
             self.theta_ref = 0.0
+            return
+        
+        self.get_logger().info(f'[ REFGEN ]: tvec = {tvec_hat}')
+        self.d_ref, self.theta_ref = compute_refs(tvec_hat[0][0], tvec_hat[1][0], tvec_hat[2][0])        
+        self.get_logger().info(f'[ REFGEN ]: d = {self.d_ref}, theta = {self.theta_ref}')
+        if self.d_ref < self.d_signed:
+            self.get_logger().info(f'[ REFGEN ]: target reached')
+            self.d_ref = 0.0
+            self.theta_ref = 0.0
+            self.state = STATE.enable
         else:
-            # self.get_logger().info(f'[ REFGEN ]: tvec = {tvec_hat}')
-            self.d_ref, self.theta_ref = compute_refs(tvec_hat[0][0], tvec_hat[1][0], tvec_hat[2][0])        
-            if self.d_ref < self.d_signed:
-                # self.get_logger().info(f'[ REFGEN ]: target reached')
-                self.d_ref = 0.0
-                self.theta_ref = 0.0
-                self.state = STATE.enable
-            else:
-                self.get_logger().info(f'[ REFGEN ]: target following')
+            self.get_logger().info(f'[ REFGEN ]: target following')
             
     #################################################################
     def on_iteration(self, ids, corners) -> None:
@@ -196,21 +201,21 @@ class Refgen(Node):
         if self.state.value == STATE.off.value:
             self.get_logger().info('[ REFGEN ]: OFF STATE')
             self.off_state(ids, corners)
-            # return
+            return
         
         # ENABLE STATE
         elif self.state.value == STATE.enable.value:
             self.get_logger().info('[ REFGEN ]: ENABLE STATE')
             if self.check_for_disable(ids, corners) is False: 
                 self.enable_state(ids, corners)
-            # return
+            return
 
         # FOLLOW STATE
         elif self.state.value == STATE.follow.value:
             self.get_logger().info('[ REFGEN ]: FOLLOW STATE')
             if self.check_for_disable(ids, corners) is False: 
                 self.follow_state(ids, corners)
-            # return
+            return
 
 
 def main(args=None):
