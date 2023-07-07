@@ -74,18 +74,21 @@ class Control(Node):
     def chose_command(self, ref_theta: float, ref_d: float) -> Tuple[Directive, float]:
         # self.get_logger().info(f'[ CONTROL NODE ]: parsing theta = {ref_theta}, d = {ref_d}')
         if ref_d < self.d_min or self.obstacle is True:
-            # self.get_logger().info('[ CONTROL NODE ]: Obstacle or target reached')
+            self.get_logger().info('[ CONTROL NODE ]: Obstacle or target reached')
             cmd = Directive.STOP.value
+            speed = 0.0
         elif self.deg_range[0] < ref_theta < self.deg_range[1]:
-            # self.get_logger().info('[ CONTROL NODE ]: theta aligned, go ahead')
+            self.get_logger().info('[ CONTROL NODE ]: theta aligned, go ahead')
             cmd = Directive.FORWARD.value
+            speed = remap(ref_d, self.d_min, self.d_max, self.speed_min, self.speed_max)
         elif ref_theta > 0:
-            # self.get_logger().info('[ CONTROL NODE ]: RIGHT')
-            cmd = Directive.TURN_RIGHT.value
+            self.get_logger().info('[ CONTROL NODE ]: RIGHT')
+            cmd = Directive.CURVE_RIGHT.value
+            speed = 0.3
         elif ref_theta < 0:
-            # self.get_logger().info('[ CONTROL NODE ]: LEFT')
-            cmd = Directive.TURN_LEFT.value
-        speed = remap(ref_d, self.d_min, self.d_max, self.speed_min, self.speed_max)
+            self.get_logger().info('[ CONTROL NODE ]: LEFT')
+            cmd = Directive.CURVE_LEFT.value
+            speed = 0.3
         return cmd, speed
 
 
