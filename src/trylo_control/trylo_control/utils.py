@@ -5,8 +5,8 @@ import cv2
 import csv
 from typing import Tuple, List
 from scipy.spatial.transform import Rotation as R
-from src.trylo_control.trylo_control.definitions import MARKER, TARGETS
-from src.trylo_control.trylo_control.parameters import (
+from src.definitions import MARKER, TARGETS
+from src.parameters import (
     D_MIN, 
     DIST_COEFFS, 
     INTRINSIC_MATRIX, 

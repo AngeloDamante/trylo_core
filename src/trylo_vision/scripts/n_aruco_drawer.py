@@ -9,7 +9,7 @@ from rclpy.node import Node
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from trylo_vision.msg import MarkersDetected, Marker, Pair
-from trylo_vision.parameters import FPS
+from src.parameters import FPS
 
 
 class ArucoDrawer(Node):

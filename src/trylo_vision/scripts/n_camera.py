@@ -6,7 +6,7 @@ import rclpy
 from rclpy.node import Node
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
-from trylo_vision.parameters import FPS
+from src.parameters import FPS
 
 # create a webcam
 webcam = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L)
@@ -23,10 +23,10 @@ class Camera(Node):
     def callback_imager(self):
         flag, img = webcam.read()
         if flag:
-            # self.get_logger().info('[ CAMERA NODE ]: image captured')
+            self.get_logger().info('[ CAMERA NODE ]: image captured')
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             msg = self.bridge.cv2_to_imgmsg(img, encoding="passthrough")
-            # self.get_logger().info('[ CAMERA NODE ]: image published')
+            self.get_logger().info('[ CAMERA NODE ]: image published')
             self.publisher.publish(msg)
         else:
             self.get_logger().info("Error")

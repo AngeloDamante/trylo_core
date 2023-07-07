@@ -14,9 +14,9 @@ from trylo_control.msg import Reference
 from trylo_vision.msg import MarkersDetected
 
 # Packages
-from src.trylo_control.trylo_control.definitions import MARKER, STATE
+from src.definitions import MARKER, STATE
 from src.trylo_control.trylo_control.VisionKalmanFilter import VisionKalmanFilter
-from src.trylo_control.trylo_control.parameters import (
+from src.parameters import (
     D_MIN,
     KF_ENABLE,
     VISION_KF_SETTINGS,

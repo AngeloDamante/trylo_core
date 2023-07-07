@@ -4,7 +4,7 @@
 import rclpy
 from rclpy.node import Node
 from trylo_gpio.msg import Command
-from src.trylo_gpio.trylo_gpio.Directive import Directive
+from src.definitions import Directive
 
 class PubCommand(Node):
     def __init__(self):

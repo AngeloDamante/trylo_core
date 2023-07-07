@@ -6,7 +6,6 @@ from typing import Tuple
 from rclpy.node import Node
 
 # packages
-from src.trylo_gpio.trylo_gpio.Directive import Directive
 from src.trylo_control.trylo_control.utils import remap
 
 # messages
@@ -15,7 +14,8 @@ from trylo_control.msg import Reference
 from std_msgs.msg import Float32
 
 # params
-from src.trylo_control.trylo_control.parameters import(
+from src.definitions import Directive
+from src.parameters import(
     DEG_RANGE,
     D_MIN,
     D_MAX,
@@ -30,7 +30,7 @@ class Control(Node):
 
         # publish
         self.publisher = self.create_publisher(Command, "/gpio/motor", 10)
-        self.create_timer(0.02, self.cbk_pub_cmd) #FIXME
+        self.create_timer(0.02, self.cbk_pub_cmd) 
 
         # subscribers
         self.subscriber_obstacle = self.create_subscription(Float32, "/gpio/us_distance", self.cbk_get_distance, 10)

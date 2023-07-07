@@ -6,7 +6,7 @@ from rclpy.node import Node
 from trylo_gpio.msg import Command
 from trylo_gpio.Trylo import Trylo
 from std_msgs.msg import Float32
-from src.trylo_gpio.trylo_gpio.Directive import Directive
+from src.definitions import Directive
 
 
 class Motor(Node):
