@@ -1,7 +1,7 @@
 import numpy as np
 
 # control
-DEG_RANGE = (-4.0, 4.0)
+DEG_RANGE = (-5.0, 5.0)
 D_MIN = 0.2
 D_MAX = 2.0
 SPEED_MIN = 0.6
