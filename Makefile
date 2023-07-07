@@ -8,3 +8,9 @@ build_gpio:
 
 build_vision:
 	colcon build --packages-select trylo_vision
+
+build_launch:
+	colcon build --packages-select trylo_launch
+
+build_control:
+	colcon build --packages-select trylo_control
