@@ -143,6 +143,7 @@ class Refgen(Node):
             self.get_logger().info('[ REFGEN ]: saving filtered data')
             save_data(filename_raw, self.data_raw, fields)
         
+        self.target = None
         if flag is True: 
             self.get_logger().info(f'[ REFGEN ]: enable marker detected')
             self.state = STATE.enable
