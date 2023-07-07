@@ -338,7 +338,7 @@ class Trylo:
 
         Args: 
         @param lights: a list/tuple containing the IDs of the lights to set the color of
-        @param color: the red component of the color (from 0 to 255), or a list/tuple containing all three color components.
+        @param color: a list/tuple containing all three color components.
         @param show: whether or not to show the new color immediately
         """
         if type(lights) != list and type(lights) != tuple:
@@ -381,13 +381,13 @@ class Trylo:
         StartTime = time.time()
         StopTime = time.time()
     
-        # save StartTime
-        while GPIO.input(self.ULTRA_ECHO_PIN) == 0:
-            StartTime = time.time()
+        # # save StartTime
+        # while GPIO.input(self.ULTRA_ECHO_PIN) == 0:
+        #     StartTime = time.time()
     
-        # save time of arrival
-        while GPIO.input(self.ULTRA_ECHO_PIN) == 1:
-            StopTime = time.time()
+        # # save time of arrival
+        # while GPIO.input(self.ULTRA_ECHO_PIN) == 1:
+        #     StopTime = time.time()
     
         # time difference between start and arrival
         TimeElapsed = StopTime - StartTime
