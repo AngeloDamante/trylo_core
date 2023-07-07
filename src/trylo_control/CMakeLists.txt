@@ -23,6 +23,7 @@ ament_python_install_package(${PROJECT_NAME})
 install(PROGRAMS
   scripts/n_control.py
   scripts/n_refgen.py
+  scripts/n_tst_ref.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
