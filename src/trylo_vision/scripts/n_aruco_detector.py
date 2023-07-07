@@ -30,7 +30,7 @@ class ArucoDetector(Node):
 
     def cbk_get_img(self, msg):
         # take image
-        self.get_logger().info('[ ARUCO NODE ]: received image')
+        # self.get_logger().info('[ ARUCO NODE ]: received image')
         img = self.bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
         frame = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -38,9 +38,9 @@ class ArucoDetector(Node):
         self.markers_detected = MarkersDetected()
         corners, ids, _ = aruco.detectMarkers(frame, dictionary, parameters=aruco.DetectorParameters())
         if len(corners) > 0:
-            self.get_logger().info('[ ARUCO NODE ]: aruco detected')
-            self.get_logger().info(f'[ ARUCO NODE ]: ids = {ids}')
-            self.get_logger().info(f'[ ARUCO NODE ]: corners = {corners}')
+            # self.get_logger().info('[ ARUCO NODE ]: aruco detected')
+            # self.get_logger().info(f'[ ARUCO NODE ]: ids = {ids}')
+            # self.get_logger().info(f'[ ARUCO NODE ]: corners = {corners}')
             _markers_detected = []
             _ids_detected = []
             _marker_detected = Marker()
