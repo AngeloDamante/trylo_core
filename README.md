@@ -77,11 +77,15 @@ trylo_core
 
 ## Installation
 Requirements:
+You need a Raspberry Pi4, PiCamera and a Pimoroni KIT.
 ```
-- ros2 >= foxy
-- python >= 3.8
-- opencv >= 4.7
-- scipy >= 1.10
+numpy==1.24.2
+opencv_contrib_python==4.7.0.72
+Pillow==9.4.0
+RPi.GPIO==0.7.1
+scipy==1.11.1
+sn3218==2.0.0
+tornado==6.2
 ```
 In the home vehicle directory, let's install project,
 ```
