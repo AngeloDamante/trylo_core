@@ -12,9 +12,10 @@ from rclpy.node import Node
 # messages
 from trylo_control.msg import Reference
 from trylo_vision.msg import MarkersDetected
+from trylo_gpio.msg import CmdLed
 
 # Packages
-from src.definitions import MARKER, STATE
+from src.definitions import MARKER, STATE, Led
 from src.trylo_control.trylo_control.VisionKalmanFilter import VisionKalmanFilter
 from src.parameters import (
     D_MIN,
@@ -35,12 +36,13 @@ from src.trylo_control.trylo_control.utils import (
     chose_target
 )
 
-filename_raw = "data_raw_cv.csv"
-filename_filtered = "data_filtered_kf.csv"
+filename_raw = "data_trylo_cv.csv"
+filename_filtered = "data_trylo_kf.csv"
 fields = ['Frame', 'Tx', 'Ty', 'Tz']
 
-
-GREEN_EN = (45, 246, 152)
+OFF_STATE = (224, 224, 224)
+ENABLED_STATE = (0, 255, 0)
+FOLLOW_STATE = (51, 51, 255)
 
 class Refgen(Node):
     def __init__(self, d_signed: float, kf_enable: bool, max_lost_frame: int):
@@ -53,8 +55,10 @@ class Refgen(Node):
 
         # connection
         self.subscription = self.create_subscription(MarkersDetected, "/vision/aruco", self.cbk_get_markers, 10)
-        self.publisher = self.create_publisher(Reference, "/control/ref", 5)
+        self.ref_publisher = self.create_publisher(Reference, "/control/ref", 5)
+        self.led_publisher = self.create_publisher(CmdLed, "/gpio/led", 5)
         self.create_timer(0.02, self.cbk_pub_ref)
+        self.create_timer(0.02, self.cbk_pub_led)
 
         # attributes
         self.kf = VisionKalmanFilter(VISION_KF_SETTINGS['NX'], VISION_KF_SETTINGS['NZ'], min_samples=MIN_KF_SAMPLES)
@@ -71,8 +75,12 @@ class Refgen(Node):
         self.data_raw = []
         self.data_filtered = []
         
+        # led
+        self.led_function = Led.FILL
+        self.led_color = OFF_STATE
+        
         # setting
-        if kf_enable is True: # FIXME
+        if kf_enable is True: 
             self.kf.start()
             self.kf.enable_vision_mode(VISION_KF_SETTINGS['K1'], VISION_KF_SETTINGS['K2'], VISION_KF_SETTINGS['DT'])
         
@@ -82,7 +90,6 @@ class Refgen(Node):
     #################################################################
     def cbk_get_markers(self, msg_marker):
         ids, corners = msg_marker.ids, msg_marker.corners
-        # if len(corners) > 0: #FIXME
         _ids = []
         _corners = []
         for i in range(len(corners)):
@@ -97,7 +104,15 @@ class Refgen(Node):
         msg = Reference()
         msg.theta = float(self.theta_ref)
         msg.distance = float(self.d_ref)
-        self.publisher.publish(msg)
+        self.ref_publisher.publish(msg)
+        
+    def cbk_pub_led(self):
+        msg = CmdLed()
+        msg.func = self.led_function.value
+        msg.r = self.led_color[0]
+        msg.g = self.led_color[1]
+        msg.b = self.led_color[2]
+        self.led_publisher.publish(msg)
     
     #################################################################
     def clean_signal(self, tvec, rvec):
@@ -132,7 +147,6 @@ class Refgen(Node):
     def off_state(self, ids, corners):
         # self.get_logger().info(f'[ REFGEN ]: OFF state, parsing ids = {ids}')
         flag, _ = extract_desired_corners(MARKER.enable_tracker.value, ids, corners)
-        # self.get_logger().info(f'[ REFGEN ]: OFF state, flag = {flag}')
         self.d_ref = 0.0
         self.theta_ref = 0.0
         
@@ -201,12 +215,14 @@ class Refgen(Node):
         # OFF STATE
         if self.state.value == STATE.off.value:
             self.get_logger().info('[ REFGEN ]: OFF STATE')
+            self.led_color = OFF_STATE
             self.off_state(ids, corners)
             return
         
         # ENABLE STATE
         elif self.state.value == STATE.enable.value:
             self.get_logger().info('[ REFGEN ]: ENABLE STATE')
+            self.led_color = ENABLED_STATE
             if self.check_for_disable(ids, corners) is False: 
                 self.enable_state(ids, corners)
             return
@@ -214,6 +230,7 @@ class Refgen(Node):
         # FOLLOW STATE
         elif self.state.value == STATE.follow.value:
             self.get_logger().info('[ REFGEN ]: FOLLOW STATE')
+            self.led_color = FOLLOW_STATE
             if self.check_for_disable(ids, corners) is False: 
                 self.follow_state(ids, corners)
             return

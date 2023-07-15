@@ -56,7 +56,7 @@ class Control(Node):
 
     def cbk_get_distance(self, msg):
         distance_hcsr04 = msg.data / 100. # to meters
-        # self.get_logger().info(f"[ CONTROL NODE ]: {distance_hcsr04}")
+        self.get_logger().info(f"[ CONTROL NODE ]: {distance_hcsr04}")
         if distance_hcsr04 < self.d_min:
             self.get_logger().info("[ CONTROL NODE ]: obstacle!!")
             self.obstacle = True
@@ -67,12 +67,12 @@ class Control(Node):
 
     def cbk_get_ref(self, msg):
         _cmd, _speed = self.chose_command(msg.theta, msg.distance)
-        # self.get_logger().info(f"[ CONTROL NODE ]: handle  cmd = {_cmd} speed = {_speed}")
+        self.get_logger().info(f"[ CONTROL NODE ]: handle  cmd = {_cmd} speed = {_speed}")
         self.cmd.command = _cmd
         self.cmd.speed = _speed
 
     def chose_command(self, ref_theta: float, ref_d: float) -> Tuple[Directive, float]:
-        # self.get_logger().info(f'[ CONTROL NODE ]: parsing theta = {ref_theta}, d = {ref_d}')
+        self.get_logger().info(f'[ CONTROL NODE ]: parsing theta = {ref_theta}, d = {ref_d}')
         if ref_d < self.d_min or self.obstacle is True:
             self.get_logger().info('[ CONTROL NODE ]: Obstacle or target reached')
             cmd = Directive.STOP.value
@@ -84,11 +84,11 @@ class Control(Node):
         elif ref_theta > 0:
             self.get_logger().info('[ CONTROL NODE ]: RIGHT')
             cmd = Directive.CURVE_RIGHT.value
-            speed = 0.3
+            speed = D_MIN
         elif ref_theta < 0:
             self.get_logger().info('[ CONTROL NODE ]: LEFT')
             cmd = Directive.CURVE_LEFT.value
-            speed = 0.3
+            speed = D_MIN
         return cmd, speed
 
 

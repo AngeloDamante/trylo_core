@@ -28,6 +28,7 @@ install(PROGRAMS
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Command.msg"
+  "msg/CmdLed.msg"
 )
 
 ament_package()
