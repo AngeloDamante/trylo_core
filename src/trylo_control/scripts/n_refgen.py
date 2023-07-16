@@ -43,6 +43,7 @@ fields = ['Frame', 'Tx', 'Ty', 'Tz']
 OFF_STATE = (224, 224, 224)
 ENABLED_STATE = (0, 255, 0)
 FOLLOW_STATE = (51, 51, 255)
+LOST_TARGET = (153, 0, 76)
 
 class Refgen(Node):
     def __init__(self, d_signed: float, kf_enable: bool, max_lost_frame: int):
@@ -182,6 +183,7 @@ class Refgen(Node):
         tvec_hat = None
         if not flag:
             self.get_logger().info(f"[ REFGEN ]: {str(self.target)} LOST")
+            self.led_color = LOST_TARGET
             if self.num_lost_frame < self.max_lost_frame:
                 self.num_lost_frame += 1
                 tvec_hat = self.predict_signal()
