@@ -13,10 +13,16 @@ MIN_KF_SAMPLES = 10
 
 # vision
 MARKER_SIZE = 0.084
+# VISION_KF_SETTINGS = {'NX': 14,
+#                       'NZ': 7,
+#                       'DT': 1.0,
+#                       'K1': 0.003,
+#                       'K2': 1.0}
+
 VISION_KF_SETTINGS = {'NX': 14,
                       'NZ': 7,
                       'DT': 1.0,
-                      'K1': 0.003,
+                      'K1': 1.0,
                       'K2': 1.0}
 
 # camera settings
