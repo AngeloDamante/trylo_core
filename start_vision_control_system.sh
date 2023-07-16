@@ -1,8 +1,12 @@
 #!/bin/bash
+RED='\033[0;31m'
+NC='\033[0m' 
 
 echo "[ BUILDING ]"
-colcon build ~/trylo_core/src
-souurce ~/trylo_core/install/setup.bash
+source ~/trylo_venv/bin/activate 
+cd ~/trylo_core/
+make clean
+python3 power_on.py
 echo "[ DONE ]"
 
 echo -e "${RED}---------------------------------------------------------------${NC}"
@@ -13,4 +17,6 @@ echo -e "${RED}  \ V /| \__ \ | (_) | | | | | (_| (_) | | | | |_| | | (_) | | ${
 echo -e "${RED}   \_/ |_|___/_|\___/|_| |_|  \___\___/|_| |_|\__|_|  \___/|_| ${NC}"
 echo -e "${RED}---------------------------------------------------------------${NC}"
 
+cd ~/trylo_core
+source install/setup.bash
 ros2 launch trylo_launch vision_control.xml

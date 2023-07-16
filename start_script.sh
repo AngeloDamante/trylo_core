@@ -17,6 +17,6 @@ echo -e "gogo" | sudo -S chmod go+rw /dev/i2c-1
 echo "[ DONE ]"
 
 echo "[ TRYLO INITIALISING ]"
-source ~/trylo_venv/bin/activate 
+source ~/trylo_venv/bin/activate
 python3 ~/trylo_core/start_trylo.py
 echo "[ DONE ]"
