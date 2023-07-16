@@ -84,11 +84,11 @@ class Control(Node):
         elif ref_theta > 0:
             self.get_logger().info('[ CONTROL NODE ]: RIGHT')
             cmd = Directive.CURVE_RIGHT.value
-            speed = D_MIN
+            speed = 0.4
         elif ref_theta < 0:
             self.get_logger().info('[ CONTROL NODE ]: LEFT')
             cmd = Directive.CURVE_LEFT.value
-            speed = D_MIN
+            speed = 0.4
         return cmd, speed
 
 
