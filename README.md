@@ -10,6 +10,8 @@ The **goal** is to implement a control system based on aruco detection and impro
 The core consists of 3 main packages. `vision`, `gpio` and `control`. In addition, the package `launch` 
 was created to launch nodes by choosing the working context.
 ```
+trylo_venv
+└── ...
 trylo_core
 ├── src
 │   ├── definitions.py      # GLOBAL
@@ -95,15 +97,36 @@ git clone https://github.com/AngeloDamante/trylo_core.git
 cd src
 git clone https://github.com/dheera/rosboard.git
 ```
-setting up the environment variables
+create virtual environemnt in the home folder of vehicle
 ```
-echo "TRYLO_CORE=~/trylo_core" >> ~/.bashrc
-echo "PYTHONPATH=${PYTHONPATH}:${TRYLO_CORE}/src" >> ~/.bashrc
-echo "sh ${TRYLO_CORE}/start_script.sh" >> ~/.bashrc
+python3 -m venv trylo_venv
+source trylo_venv/bin/activate
+pip3 install -r ~/trylo_core/requirements.txt
 ```
+setting up the environment variables and add init script. Add these lines to the bottom of the `bashrc` file
+```
+# ROS environment
+source /opt/ros/foxy/setup.bash
+export TRYLO_CORE=/home/gogo/trylo_core
+export PYTHONPATH="${PYTHONPATH}:${TRYLO_CORE}"
 
-[//]: # (script per installare tutto)
-[//]: # (script per installare tutto con flag di rosboard)
+# Init Vehicle
+bash ~/trylo_core/start_script.sh
+
+# Start Vision Control System (optionally)
+bash ~/trylo_core/start_vision_control_system.sh
+```
+in the vscode IDE you could insert in the `settings.json` file the following lines
+```
+{
+    "python.analysis.extraPaths": [
+        "/opt/ros/foxy/lib/python3.8/site-packages"
+    ],
+    "python.autoComplete.extraPaths": [
+        "/opt/ros/foxy/lib/python3.8/site-packages"
+    ]
+}
+```
 
 ## Architecture
 <p align="center">    
@@ -166,5 +189,5 @@ If, instead, you want the control system to start directly when the vehicle star
 you can include the script in the bash file.
 
 ```
-echo "sh ${TRYLO_CORE}/start_script_cs.sh" >> ~/.bashrc
+echo "bash ${TRYLO_CORE}/start_vision_control_system.sh" >> ~/.bashrc
 ```
