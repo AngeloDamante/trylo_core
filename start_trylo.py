@@ -12,3 +12,5 @@ for _ in range(NUM_HELLOS):
     time.sleep(0.2)
     robot.clear_underlighting(show=True)
     time.sleep(0.2)
+    
+del robot

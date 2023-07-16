@@ -24,6 +24,5 @@ for i in range(4):
     elif i == 3:
         robot.set_underlight(LIGHT_MIDDLE_RIGHT, (0, 204, 204))
         os.system("make build_launch")
-
-    
-    
+        
+del robot
